@@ -1,0 +1,11 @@
+body {
+  max-width: 650px;
+  margin: 40px auto;
+  padding: 0 10px;
+  line-height: 1.5;
+}
+
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
