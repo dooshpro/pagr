@@ -1,5 +1,3 @@
-const { useCallback } = require("react");
-
 const createView = document.getElementById('create-view');
 const form = document.getElementById('create-form');
 const contentEl = document.getElementById('content');
@@ -16,16 +14,6 @@ function makeSlug(len = 6) {
   const bytes = new Uint8Array(len);
   crypto.getRandomValues(bytes);
   return Array.from(bytes, b => ALPHABET[b % ALPHABET.length]).join('');
-}
-
-async function savePage(slug, content, proof) {
-  const body = new URLSearchParams();
-  body.append(CONFIG.entry.slug, slug);
-  body.append(CONFIG.entry.content, content);
-  body.append(CONFIG.entry.proof, proof);
-
-  const url = `https://docs.google.com/forms/d/e/${CONFIG.formId}/formResponse`;
-  await fetch(url, { method: 'POST', mode: 'no-cors', body });
 }
 
 form.addEventListener('submit', async (e) => {
@@ -45,10 +33,10 @@ form.addEventListener('submit', async (e) => {
   let keys;
   try {
     keys = await makeKeys();
-    await savePage(slug, content, `p1:${keys.pub}`);
+    await postRow(slug, content, `p1:${keys.pub}`);
   } catch (err) {
     console.error(err);
-    statusEl.textContent = 'couldnt save. check ur connection and try again.';
+    statusEl.textContent = 'couldnt save: ' + err.message;
     saveBtn.disabled = false;
     return;
   }
@@ -83,8 +71,11 @@ document.getElementById('again-btn').addEventListener('click', () => {
   resultBox.hidden = true;
 });
 
-const slugParam = new URLSearchParams(location.search).get('p');
-if (slugParam) {
+const params = new URLSearchParams(location.search);
+if (params.get('p')) {
   createView.hidden = true;
-  showPage(slugParam);
+  showPage(params.get('p'));
+} else if (params.get('edit')) {
+  createView.hidden = true;
+  showEdit(params.get('edit'));
 }

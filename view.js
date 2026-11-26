@@ -1,46 +1,7 @@
 const pageView = document.getElementById('page-view');
 const pageStatus = document.getElementById('page-status');
 const pageContent = document.getElementById('page-content');
-
-const wait = ms => new Promise(r => setTimeout(r, ms));
-
-function parseCSV(text) {
-  const rows = [];
-  let row = [], field = '', inQuotes = false;
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i];
-    if (inQuotes) {
-      if (c === '"' && text[i + 1] === '"') { field += '"'; i++; }
-      else if (c === '"') inQuotes = false;
-      else field += c;
-    } else if (c === '"') {
-      inQuotes = true;
-    } else if (c === ',') {
-      row.push(field); field = '';
-    } else if (c === '\n') {
-      row.push(field); rows.push(row);
-      row = []; field = '';
-    } else if (c !== '\r') {
-      field += c;
-    }
-  }
-  if (field || row.length) { row.push(field); rows.push(row); }
-  return rows;
-}
-
-async function fetchPage(slug) {
-  const sql = `select * where B = '${slug}' order by A asc limit 1`;
-  const url = `https://docs.google.com/spreadsheets/d/${CONFIG.sheetId}/gviz/tq`
-    + `?tqx=out:csv&sheet=${CONFIG.sheetTab}&headers=1&tq=${encodeURIComponent(sql)}`;
-
-  const res = await fetch(url);
-  const text = await res.text();
-  if (text.trimStart().startsWith('<')) throw new Error('ts aint public');
-
-  // columns: A time, B slug, C content, D proof
-  return parseCSV(text).find(r => r[1] === slug) || null;
-}
-
+const editLink = document.getElementById('edit-link');
 const BAD_TAGS = ['form', 'input', 'button', 'textarea', 'select', 'style'];
 
 if (typeof DOMPurify !== 'undefined') {
@@ -78,29 +39,36 @@ async function showPage(slug) {
   pageView.hidden = false;
 
   // slug goes straight into query so only allow safe characters
-  if (!/^[a-z0-9-]{1,32}$/.test(slug)) {
+  if (!SLUG_RE.test(slug)) {
     pageStatus.textContent = 'page not found.';
     return;
   }
 
   pageStatus.textContent = 'loading...';
   const justSaved = sessionStorage.getItem('just-saved') === slug;
-  const tries = justSaved ? 5 : 1;
 
   try {
-    let row = null;
-    for (let i = 0; i < tries && !row; i++) {
-      if (i > 0) await wait(2000);
-      row = await fetchPage(slug);
-    }
-    if (!row) {
+    const page = await loadPage(slug, justSaved ? 5 : 1);
+    if (!page) {
       pageStatus.textContent = 'page not found.';
       return;
     }
     sessionStorage.removeItem('just-saved');
+
+    if (page.deleted) {
+      pageStatus.textContent = 'this page was deleted by its owner.';
+      document.title = 'deleted';
+      return;
+    }
+
     pageStatus.textContent = '';
-    renderInto(pageContent, row[2]);
-    document.title = getTitle(row[2], slug);
+    renderInto(pageContent, page.content);
+    document.title = getTitle(page.content, slug);
+
+    if (page.pub) {
+      editLink.href = `?edit=${slug}`;
+      editLink.hidden = false;
+    }
   } catch (err) {
     console.error(err);
     pageStatus.textContent = 'could not load the page. try again in a bit.';
