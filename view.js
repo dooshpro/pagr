@@ -41,6 +41,38 @@ async function fetchPage(slug) {
   return parseCSV(text).find(r => r[1] === slug) || null;
 }
 
+const BAD_TAGS = ['form', 'input', 'button', 'textarea', 'select', 'style'];
+
+if (typeof DOMPurify !== 'undefined') {
+  DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+    if (node.tagName === 'A') node.setAttribute('rel', 'noopener noreferrer nofollow');
+  });
+}
+
+function renderInto(el, md) {
+  if (typeof marked === 'undefined' || typeof DOMPurify === 'undefined') {
+    const pre = document.createElement('pre');
+    pre.textContent = md;
+    el.replaceChildren(pre);
+    return;
+  }
+  const html = marked.parse(md, { breaks: true });
+  el.innerHTML = DOMPurify.sanitize(html, {
+    FORBID_TAGS: BAD_TAGS,
+    FORBID_ATTR: ['style'],
+  });
+}
+
+function getTitle(md, slug) {
+  const first = md.split('\n').find(l => l.trim()) || '';
+  const title = first
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1') //[text](url) -> text
+    .replace(/^#+\s*/, '')
+    .replace(/[*_`>]/g, '')
+    .trim();
+  return title.slice(0, 60) || slug;
+}
+
 async function showPage(slug) {
   slug = slug.toLowerCase();
   pageView.hidden = false;
@@ -67,8 +99,8 @@ async function showPage(slug) {
     }
     sessionStorage.removeItem('just-saved');
     pageStatus.textContent = '';
-    pageContent.textContent = row[2];
-    document.title = row[2].split('\n')[0].slice(0, 60) || slug;
+    renderInto(pageContent, row[2]);
+    document.title = getTitle(row[2], slug);
   } catch (err) {
     console.error(err);
     pageStatus.textContent = 'could not load the page. try again in a bit.';

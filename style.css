@@ -11,6 +11,13 @@ textarea {
 }
 
 #page-content {
-  white-space: pre-wrap;
   overflow-wrap: break-word;
+}
+
+#page-content img {
+  max-width: 100%;
+}
+
+#page-content pre {
+  overflow: auto;
 }
