@@ -10,24 +10,33 @@
   <h1><a href="/">pagr</a></h1>
   <p>pages for the people.</p>
 
-  <h2>create a page</h2>
-  <form id="create-form">
-    <label for="content">content (required)</label><br>
-    <textarea id="content" rows="12" required></textarea>
-    <p>
-      <button type="submit" id="save-btn">save and done</button>
-      <span id="status"></span>
-    </p>
-  </form>
+  <div id="create-view">
+    <h2>create a page</h2>
+    <form id="create-form">
+      <label for="content">content (required)</label><br>
+      <textarea id="content" rows="12" required></textarea>
+      <p>
+        <button type="submit" id="save-btn">save and done</button>
+        <span id="status"></span>
+      </p>
+    </form>
 
-  <div id="result" hidden>
-    <p>page saved. its address is:</p>
-    <p><code id="result-link"></code></p>
-    <p>fooooooooooooo</p>
-    <button id="again-btn" type="button">make another</button>
+    <div id="result" hidden>
+      <p>page saved. its address is:</p>
+      <p><a id="result-link" href="/"></a></p>
+      <button id="again-btn" type="button">make another</button>
+    </div>
+  </div>
+
+  <div id="page-view" hidden>
+    <p id="page-status"></p>
+    <div id="page-content"></div>
+    <hr>
+    <p><a href="/">create your own page</a></p>
   </div>
 
   <script src="config.js"></script>
+  <script src="view.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

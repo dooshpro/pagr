@@ -9,3 +9,8 @@ textarea {
   width: 100%;
   box-sizing: border-box;
 }
+
+#page-content {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}

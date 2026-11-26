@@ -1,3 +1,4 @@
+const createView = document.getElementById('create-view');
 const form = document.getElementById('create-form');
 const contentEl = document.getElementById('content');
 const saveBtn = document.getElementById('save-btn');
@@ -41,9 +42,12 @@ form.addEventListener('submit', async (e) => {
     return;
   }
 
+  sessionStorage.setItem('just-saved', slug);
+  const address = `${location.origin}${location.pathname}?p=${slug}`;
   form.hidden = true;
   resultBox.hidden = false;
-  resultLink.textContent = `${location.origin}/?p=${slug}`;
+  resultLink.href = address;
+  resultLink.textContent = address;
 });
 
 document.getElementById('again-btn').addEventListener('click', () => {
@@ -52,3 +56,9 @@ document.getElementById('again-btn').addEventListener('click', () => {
   form.hidden = false;
   resultBox.hidden = true;
 });
+
+const slugParam = new URLSearchParams(location.search).get('p');
+if (slugParam) {
+  createView.hidden = true;
+  showPage(slugParam);
+}
