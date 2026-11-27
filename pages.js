@@ -1,4 +1,12 @@
 const SLUG_RE = /^[a-z0-9-]{1,32}$/;
+const RESERVED = ['admin', 'about', 'help', 'edit', 'new', 'api', 'index', '404', 'slug', 'content', 'proof']; //txti knowledge ball
+
+function slugProblem(slug) {
+  if (!/^[a-z0-9-]{3,32}$/.test(slug)) return 'use 3 to 32 letters, numbers or dashes.';
+  if (slug.startsWith('-') || slug.endsWith('-')) return 'cant start or end with a dash.';
+  if (RESERVED.includes(slug)) return 'that one is reserved.';
+  return '';
+}
 
 const wait = ms => new Promise(r => setTimeout(r, ms));
 

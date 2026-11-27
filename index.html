@@ -17,6 +17,12 @@
       <textarea id="content" rows="12" maxlength="50000" required></textarea>
       <p>markdown works: <code># heading</code> <code>**bold**</code> <code>[text](url)</code> <code>![alt](image url)</code></p>
       <p>
+        <label for="custom-slug">custom address?</label><br>
+        <input id="custom-slug" maxlength="32">
+        <span id="slug-hint"></span><br>
+        <code>3 to 32 chars</code>
+      </p>
+      <p>
         <button type="submit" id="save-btn">save and done</button>
         <span id="status"></span>
       </p>
