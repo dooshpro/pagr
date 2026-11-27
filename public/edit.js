@@ -18,7 +18,7 @@ async function showEdit(slug) {
   slug = slug.toLowerCase();
   editSlug = slug;
   editView.hidden = false;
-  editCancel.href = `?p=${slug}`;
+  editCancel.href = `/${slug}`;
 
   if (!SLUG_RE.test(slug)) {
     editStatus.textContent = 'page not found.';
@@ -76,11 +76,12 @@ async function change(action) {
       return;
     }
 
+    cacheSet(editSlug, done);
     if (action === 'delete') {
       editForm.hidden = true;
       editStatus.textContent = 'page deleted.';
     } else {
-      location.href = `?p=${editSlug}`;
+      location.href = `/${editSlug}`;
     }
   } catch (err) {
     console.error(err);

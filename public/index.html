@@ -4,21 +4,23 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>pagr</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <h1><a href="/">pagr</a></h1>
   <p>pages for the people.</p>
+  <noscript><p>pagr needs javascript to work.</p></noscript>
 
   <div id="create-view">
     <h2>create a page</h2>
     <form id="create-form">
-      <label for="content">content (required)</label><br>
-      <textarea id="content" rows="12" maxlength="50000" required></textarea>
-      <p>markdown works: <code># heading</code> <code>**bold**</code> <code>[text](url)</code> <code>![alt](image url)</code></p>
+      <label for="content">content</label><br>
+      <textarea id="content" rows="12" maxlength="50000" required
+  placeholder="# heading&#10;write here&#10;**bold**&#10;[link](https://link.com)&#10;![img](https://cat.png)&#10;lists with - or numbers."></textarea>
       <p>
-        <label for="custom-slug">custom address?</label><br>
-        <input id="custom-slug" maxlength="32">
+        <label for="custom-slug">custom address</label><br>
+        <input id="custom-slug" maxlength="32" placeholder="cool-webpage">
         <span id="slug-hint"></span><br>
         <code>3 to 32 chars</code>
       </p>
@@ -67,11 +69,12 @@
 
   <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
-  <script src="config.js"></script>
-  <script src="keys.js"></script>
-  <script src="pages.js"></script>
-  <script src="view.js"></script>
-  <script src="edit.js"></script>
-  <script src="app.js"></script>
+  <script src="/config.js"></script>
+  <script src="/keys.js"></script>
+  <script src="/pages.js"></script>
+  <script src="/cache.js"></script>
+  <script src="/view.js"></script>
+  <script src="/edit.js"></script>
+  <script src="/app.js"></script>
 </body>
 </html>

@@ -37,3 +37,6 @@ used base64url helpers.
 
 earlier tried `elliptic` (which gives DER signatures)
 then changed to WebCrypto (gives raw 64byte r+s)
+
+## visual:
+![alt text](image.png) (old image)

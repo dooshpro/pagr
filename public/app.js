@@ -1,5 +1,3 @@
-const { createRef } = require("react");
-
 const createView = document.getElementById('create-view');
 const form = document.getElementById('create-form');
 const contentEl = document.getElementById('content');
@@ -98,7 +96,7 @@ form.addEventListener('submit', async (e) => {
   statusEl.textContent = '';
   rememberSecret(slug, keys.secret);
   sessionStorage.setItem('just-saved', slug);
-  const address = `${location.origin}${location.pathname}?p=${slug}`;
+  const address = `${location.origin}/${slug}`;
   form.hidden = true;
   resultBox.hidden = false;
   resultLink.href = address;
@@ -129,10 +127,19 @@ document.getElementById('again-btn').addEventListener('click', () => {
 });
 
 const params = new URLSearchParams(location.search);
-if (params.get('p')) {
+const parts = location.pathname.split('/').filter(Boolean);
+
+if (parts[0] && parts[0] !== 'index.html') {
+  createView.hidden = true;
+  if (parts[1] === 'edit') showEdit(parts[0]);
+  else showPage(parts[0]);
+} else if (params.get('p')) {
   createView.hidden = true;
   showPage(params.get('p'));
 } else if (params.get('edit')) {
   createView.hidden = true;
   showEdit(params.get('edit'));
+} else if (params.get('new')) {
+  customEl.value = params.get('new').toLowerCase().slice(0, 32);
+  customEl.dispatchEvent(new Event('change'));
 }

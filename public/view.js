@@ -34,43 +34,67 @@ function getTitle(md, slug) {
   return title.slice(0, 60) || slug;
 }
 
+function showNotFound(slug) {
+  document.title = 'not found';
+  pageStatus.textContent = 'page not found.';
+  if (!slugProblem(slug)) {
+    const a = document.createElement('a');
+    a.href = `/?new=${slug}`;
+    a.textContent = 'create it?';
+    pageStatus.append(' ', a);
+  }
+}
+
+function draw(slug, page) {
+  if (page.deleted) {
+    pageContent.replaceChildren();
+    editLink.hidden = true;
+    pageStatus.textContent = 'this page was deleted by its owner.';
+    document.title = 'deleted';
+    return;
+  }
+  pageStatus.textContent = '';
+  renderInto(pageContent, page.content);
+  document.title = getTitle(page.content, slug);
+  if (page.pub) {
+    editLink.href = `/${slug}/edit`;
+    editLink.hidden = false;
+  }
+}
+
 async function showPage(slug) {
   slug = slug.toLowerCase();
   pageView.hidden = false;
 
   // slug goes straight into query so only allow safe characters
   if (!SLUG_RE.test(slug)) {
-    pageStatus.textContent = 'page not found.';
+    showNotFound(slug);
     return;
   }
 
-  pageStatus.textContent = 'loading...';
+  const cached = cacheGet(slug);
+  const cachedOk = cached && !cached.deleted;
+  if (cachedOk) draw(slug, cached);
+  else pageStatus.textContent = 'loading...';
+
   const justSaved = sessionStorage.getItem('just-saved') === slug;
 
   try {
     const page = await loadPage(slug, justSaved ? 5 : 1);
     if (!page) {
-      pageStatus.textContent = 'page not found.';
+      cacheDrop(slug);
+      pageContent.replaceChildren();
+      editLink.hidden = true;
+      showNotFound(slug);
       return;
     }
     sessionStorage.removeItem('just-saved');
+    cacheSet(slug, page);
 
-    if (page.deleted) {
-      pageStatus.textContent = 'this page was deleted by its owner.';
-      document.title = 'deleted';
-      return;
-    }
-
-    pageStatus.textContent = '';
-    renderInto(pageContent, page.content);
-    document.title = getTitle(page.content, slug);
-
-    if (page.pub) {
-      editLink.href = `?edit=${slug}`;
-      editLink.hidden = false;
-    }
+    if (cachedOk && !page.deleted && cached.version === page.version && cached.content === page.content) return;
+    draw(slug, page);
   } catch (err) {
     console.error(err);
-    pageStatus.textContent = 'could not load the page. try again in a bit.';
+    if (!cachedOk) pageStatus.textContent = 'could not load the page. try again in a bit.';
   }
 }
